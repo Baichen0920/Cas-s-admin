@@ -1,13 +1,14 @@
-var express = require('express'),
-    bodyParser = require('body-parser'),
-    cors = require('cors')
+const http = require('http')
 
-var app = express()
+const app = require('./app/express')
+const db = require('./app/models/sequelize')
+const config = require('./config')
 
-app.use(cors())
-
-app.use(require("morgan")("dev"))
-app.use(bodyParser.urlencoded({ extended: false}))
-app.use(bodyParser.json())
-
-
+db.sequelize
+  .sync()
+  .then(() => {
+    const server = http.createServer(app).listen(config.SERVER_PORT, () => {
+      console.log(`Server is running on PORT ${config.SERVER_PORT}`)
+    })
+  })
+  .catch((err) => console.log('Failed to sync db:' + err.message))
